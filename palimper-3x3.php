@@ -31,4 +31,8 @@ spl_autoload_register( static function ( string $class ): void {
 	}
 } );
 
+register_activation_hook( __FILE__, [ \Palimper\ThreeXThree\WordPress\Capabilities::class, 'register_static' ] );
+register_activation_hook( __FILE__, [ \Palimper\ThreeXThree\Database\Migrator::class, 'run' ] );
+register_deactivation_hook( __FILE__, [ \Palimper\ThreeXThree\WordPress\Capabilities::class, 'remove_static' ] );
+
 add_action( 'plugins_loaded', [ \Palimper\ThreeXThree\Plugin::class, 'boot' ] );

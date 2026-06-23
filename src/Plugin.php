@@ -18,23 +18,13 @@ class Plugin {
 	}
 
 	private function __construct() {
-		register_activation_hook( PALIMPER_3X3_FILE, [ $this, 'activate' ] );
-		register_deactivation_hook( PALIMPER_3X3_FILE, [ $this, 'deactivate' ] );
 		add_action( 'init', [ $this, 'init' ] );
 		add_action( 'admin_menu', [ new AdminMenu(), 'register' ] );
 		add_action( 'admin_enqueue_scripts', [ new AssetLoader(), 'register' ] );
 	}
 
-	public function activate(): void {
-		( new Capabilities() )->register();
-		Migrator::run();
-	}
-
-	public function deactivate(): void {
-		( new Capabilities() )->remove();
-	}
-
 	public function init(): void {
 		load_plugin_textdomain( 'palimper-3x3', false, dirname( plugin_basename( PALIMPER_3X3_FILE ) ) . '/languages' );
+		( new Capabilities() )->register();
 	}
 }

@@ -9,6 +9,14 @@ class Capabilities {
 		'operate_palimper_scoreboard',
 	];
 
+	public static function register_static(): void {
+		( new self() )->register();
+	}
+
+	public static function remove_static(): void {
+		( new self() )->remove();
+	}
+
 	public function register(): void {
 		$role = get_role( 'administrator' );
 		if ( ! $role ) {

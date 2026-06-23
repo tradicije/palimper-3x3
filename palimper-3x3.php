@@ -19,18 +19,16 @@ define( 'PALIMPER_3X3_FILE', __FILE__ );
 define( 'PALIMPER_3X3_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PALIMPER_3X3_URL', plugin_dir_url( __FILE__ ) );
 
-if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
-	add_action(
-		'admin_notices',
-		static function (): void {
-			echo '<div class="notice notice-error"><p>'
-				. esc_html__( 'Palimper 3x3: Composer dependencies are missing. Run `composer install` in the plugin directory.', 'palimper-3x3' )
-				. '</p></div>';
-		}
-	);
-	return;
-}
-
-require_once __DIR__ . '/vendor/autoload.php';
+spl_autoload_register( static function ( string $class ): void {
+	$prefix = 'Palimper\\ThreeXThree\\';
+	if ( strncmp( $prefix, $class, strlen( $prefix ) ) !== 0 ) {
+		return;
+	}
+	$relative = substr( $class, strlen( $prefix ) );
+	$file     = __DIR__ . '/src/' . str_replace( '\\', '/', $relative ) . '.php';
+	if ( file_exists( $file ) ) {
+		require $file;
+	}
+} );
 
 add_action( 'plugins_loaded', [ \Palimper\ThreeXThree\Plugin::class, 'boot' ] );

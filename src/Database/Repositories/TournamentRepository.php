@@ -1,0 +1,100 @@
+<?php
+/**
+ * Repository for tournament records.
+ *
+ * @package Palimper\ThreeXThree
+ * @license AGPL-3.0-or-later
+ */
+
+namespace Palimper\ThreeXThree\Database\Repositories;
+
+defined( 'ABSPATH' ) || exit;
+
+class TournamentRepository {
+
+    private \wpdb $wpdb;
+
+    public function __construct() {
+        global $wpdb;
+        $this->wpdb = $wpdb;
+    }
+
+    private function table(): string {
+        return $this->wpdb->prefix . 'p3x3_tournaments';
+    }
+
+    /**
+     * Finds a single tournament by its primary key.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function find_by_id( int $id ): ?array {
+        $row = $this->wpdb->get_row(
+            $this->wpdb->prepare(
+                "SELECT * FROM `{$this->table()}` WHERE id = %d LIMIT 1",
+                $id
+            ),
+            ARRAY_A
+        );
+
+        return $row ?: null;
+    }
+
+    /**
+     * Returns all tournaments ordered by id descending.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function find_all(): array {
+        return $this->wpdb->get_results(
+            "SELECT * FROM `{$this->table()}` ORDER BY id DESC",
+            ARRAY_A
+        ) ?: [];
+    }
+
+    /**
+     * Inserts a new tournament record.
+     *
+     * @param array<string, mixed> $data
+     * @return int Inserted row ID.
+     */
+    public function insert( array $data ): int {
+        $now             = current_time( 'mysql', true );
+        $data['created_at'] = $now;
+        $data['updated_at'] = $now;
+
+        $this->wpdb->insert( $this->table(), $data );
+
+        return (int) $this->wpdb->insert_id;
+    }
+
+    /**
+     * Updates an existing tournament record.
+     *
+     * @param array<string, mixed> $data
+     */
+    public function update( int $id, array $data ): bool {
+        $data['updated_at'] = current_time( 'mysql', true );
+
+        $result = $this->wpdb->update(
+            $this->table(),
+            $data,
+            [ 'id' => $id ]
+        );
+
+        return $result !== false;
+    }
+
+    /**
+     * Deletes a tournament by primary key.
+     */
+    public function delete( int $id ): bool {
+        $result = $this->wpdb->delete(
+            $this->table(),
+            [ 'id' => $id ],
+            [ '%d' ]
+        );
+
+        return $result !== false && $result > 0;
+    }
+}
